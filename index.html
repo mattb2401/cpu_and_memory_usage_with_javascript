@@ -1,0 +1,238 @@
+<script src="jquery-1.10.2.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<div class='usage' style='border:1px solid #f4f4f4; width:1000px; height:250px;'>
+    <div class='memory_usage' style='float:left; border-right:1px solid #f4f4f4; height:250px;'>
+        <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding:10px; border-bottom: 1px solid #f5f5f5;'>Memory Usage</h2>
+        <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding-left: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px; border-bottom: 1px solid #f5f5f5; font-weight:200' id='total'></h2>
+        <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding-left: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px; border-bottom: 1px solid #f5f5f5; font-weight:200' id='used' ></h2>
+        <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding-left: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px; border-bottom: 1px solid #f5f5f5; font-weight:200' id='free'></h2>
+    </div>
+    <div id="cpu_usage" style="float:left; min-width: 600px; height: 250px; margin: 0 auto"></div>
+    <div class='processor_usage' style='float:left; border-left:1px solid #f4f4f4; height:250px;'>
+    <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding:10px; border-bottom: 1px solid #f5f5f5;'>Processor Usage</h2>
+
+    <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding-left: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px; border-bottom: 1px solid #f5f5f5; font-weight:200' id='processor_1'></h2>
+
+    <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding-left: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px; border-bottom: 1px solid #f5f5f5; font-weight:200' id='processor_2'></h2>
+
+    <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding-left: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px; border-bottom: 1px solid #f5f5f5; font-weight:200' id='processor_3'></h2>
+
+    <h2 style='color:#333; font-size:14px; font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif; padding-left: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px; border-bottom: 1px solid #f5f5f5; font-weight:200' id='processor_4'></h2>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+    $(document).ready(function () {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+        var url = "http://localhost:4000/proxy.php";
+        var cpu_usage_array = new Array();
+        var processor_1_data;
+        var processor_2_data;
+        var processor_3_data;
+        var processor_4_data;
+
+        setInterval(function () {
+              get_data();
+        }, 1000);
+
+
+        function get_data(){
+            $.ajax({ 
+            type: 'GET',
+            url: url, 
+            dataType: 'json',
+            success: function (data) {
+                var total = data.Memory.Total; 
+                var used = data.Memory.Used;
+                var free = data.Memory.Free;
+                var total_div = document.getElementById('total');
+                var used_div = document.getElementById('used');
+                var free_div = document.getElementById('free');
+                total_div.innerHTML = 'Total: <strong style="color:#039BE5;">'+total+'</strong>';
+                used_div.innerHTML = 'Used: <strong style="color:#FF3D00;">'+used+'</strong>';
+                free_div.innerHTML = 'Free: <strong style="color:#8BC34A;">'+free+'</strong>';
+
+                processor_1_data = data.Cpu[0];
+                processor_2_data = data.Cpu[1];
+                processor_3_data = data.Cpu[2];
+                processor_4_data = data.Cpu[3];
+
+                var processor_1_div = document.getElementById('processor_1');
+                var processor_2_div = document.getElementById('processor_2');
+                var processor_3_div = document.getElementById('processor_3');
+                var processor_4_div = document.getElementById('processor_4');
+
+                processor_1_div.innerHTML = 'Processor 1: <strong style="color: #1565C0">'+processor_1_data+'</strong>';
+                processor_2_div.innerHTML = 'Processor 2: <strong style="color: #111">'+processor_2_data+'</strong>';
+                processor_3_div.innerHTML = 'Processor 3: <strong style="color: #8BC34A">'+processor_3_data+'</strong>';
+                processor_4_div.innerHTML = 'Processor 4: <strong style="color: #FB8C00">'+processor_4_data+'</strong>';
+
+            }
+           });
+        }
+
+        // function get_cpu_usage(){
+        //     $.ajax({ 
+        //         type: 'GET',
+        //         url: url, 
+        //         dataType: 'json',
+        //         success: function (data) {
+        //             processor_1_data = data.Cpu[0];
+        //             processor_2_data = data.Cpu[1];
+        //             processor_3_data = data.Cpu[2];
+        //             processor_4_data = data.Cpu[3];
+        //         }
+        //     }); 
+        // }
+       
+        $('#cpu_usage').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg,
+                marginRight: 10,
+                events: {
+                    load: function () {
+
+                        // set up the updating of the chart each second
+                        var processor_1 = this.series[0];
+                        var processor_2 = this.series[1];
+                        var processor_3 = this.series[2];
+                        var processor_4 = this.series[3];
+                        setInterval(function () {
+                            
+                            var x = (new Date()).getTime();
+                            var    processor_1_y = processor_1_data;
+                            var    processor_2_y = processor_2_data;
+                            var    processor_3_y = processor_3_data;
+                            var    processor_4_y = processor_4_data;
+                            processor_1.addPoint([x, processor_1_y], true, true);
+                            processor_2.addPoint([x, processor_2_y], true, true);
+                            processor_3.addPoint([x, processor_3_y], true, true);
+                            processor_4.addPoint([x, processor_4_y], true, true);
+                        }, 1000);
+
+                    }
+                }
+            },
+            title: {
+                text: 'CPU Usage'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: 'usage'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#b20000'
+                },
+                {
+                    value: 0,
+                    width: 1,
+                    color: '#4A148C'
+                },
+                {
+                    value: 0,
+                    width: 1,
+                    color: '#4A148C'
+                },
+                {
+                    value: 0,
+                    width: 1,
+                    color: '#4A148C'
+                }]
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name + '</b><br/>' +
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: 'processor_1',
+                data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            // y: processor_1_data
+                        });
+                    }
+                    return data;
+                }())
+            },
+            {
+                name: 'processor_2',
+                data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            // y: processor_2_data
+                        });
+                    }
+                    return data;
+                }())
+            },
+            {
+                name: 'processor_3',
+                data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            // y: processor_3_data
+                        });
+                    }
+                    return data;
+                }())
+            },{
+                name: 'processor_4',
+                data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            // y: processor_4_data
+                        });
+                    }
+                    return data;
+                }())
+            }]
+        });
+    });
+});
+</script>
